@@ -35,7 +35,7 @@ export function ResultsCharts({ stats }: Props) {
   );
 
   return (
-    <div>
+    <div className="results-charts">
       <div className="chart-toolbar">
         <div className="block-head">
           <p className="mono-label">分布</p>
@@ -94,26 +94,32 @@ export function ResultsCharts({ stats }: Props) {
           </BarChart>
         </ResponsiveContainer>
       </div>
+      <div className="stat-strip stat-strip-2 tnum">
+        <div>
+          <b>{pct(stats.kakuhenRate)}</b>
+          <span>確変率</span>
+        </div>
+        <div>
+          <b>{pct(stats.r16Rate)}</b>
+          <span>16R率</span>
+        </div>
+      </div>
       <div className="block-head follow">
         <p className="mono-label">累積</p>
         <h2>n 枚以上のる確率</h2>
       </div>
-      <table className="spec-sheet">
-        <thead>
-          <tr>
-            <th>枚数</th>
-            <th>確率</th>
-          </tr>
-        </thead>
-        <tbody>
-          {stats.cdf.map((row) => (
-            <tr key={row.n}>
-              <td>{row.n} 枚以上</td>
-              <td>{pct(row.rate)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="cdf">
+        <div className="cdf-row is-head">
+          <span>枚数</span>
+          <span>確率</span>
+        </div>
+        {stats.cdf.map((row) => (
+          <div key={row.n} className="cdf-row tnum">
+            <span>{row.n} 枚以上</span>
+            <span>{pct(row.rate)}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

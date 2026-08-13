@@ -33,40 +33,26 @@ export function ResultsSummary({ stats }: Props) {
           <span>中央値</span>
         </div>
         <div>
-          <b>{num(stats.stddev)}</b>
-          <span>標準偏差</span>
+          <b>{stats.modeValue}</b>
+          <span>最頻値</span>
         </div>
         <div>
-          <b>{pct(stats.zeroRate)}</b>
-          <span>0 枚率</span>
+          <b>{num(stats.stddev)}</b>
+          <span>標準偏差</span>
         </div>
         <div>
           <b>{num(stats.meanTons)}</b>
           <span>平均トン</span>
         </div>
+        <div>
+          <b>{pct(stats.zeroRate)}</b>
+          <span>0枚率</span>
+        </div>
+        <div>
+          <b>{pct(stats.finishRate)}</b>
+          <span>完走率</span>
+        </div>
       </div>
-      <table className="spec-sheet">
-        <thead>
-          <tr>
-            <th>状態</th>
-            <th>到達率</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>確変</td>
-            <td>{pct(stats.kakuhenRate)}</td>
-          </tr>
-          <tr>
-            <td>突確</td>
-            <td>{pct(stats.totsukakuRate)}</td>
-          </tr>
-          <tr>
-            <td>16R</td>
-            <td>{pct(stats.r16Rate)}</td>
-          </tr>
-        </tbody>
-      </table>
     </>
   );
 }

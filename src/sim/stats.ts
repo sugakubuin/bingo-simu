@@ -3,7 +3,7 @@ import { initialState } from "../domain/initialState";
 import { drawWall, remainingPool } from "../domain/wall";
 import { mulberry32 } from "../domain/rng";
 import { runTrial } from "./engine";
-import { freqFromTotals } from "./histogram";
+import { freqFromTotals, modeFromTotals } from "./histogram";
 import type { SimInput, SimStats } from "../types";
 
 export const TRIALS = 100_000;
@@ -32,6 +32,7 @@ export function runSimulation(
   let totsuN = 0;
   let r16N = 0;
   let tonSum = 0;
+  let finishN = 0;
 
   for (let t = 0; t < trials; t++) {
     drawWall(pool, n2, rng, buf);
@@ -52,6 +53,7 @@ export function runSimulation(
     if (r.everTotsukaku) totsuN++;
     if (r.is16R) r16N++;
     tonSum += r.tonUsed;
+    if (r.tonUsed === input.tons) finishN++;
     if (options.onProgress && (t + 1) % 5000 === 0) {
       options.onProgress(t + 1, trials);
     }
@@ -77,12 +79,14 @@ export function runSimulation(
     trials,
     mean,
     median,
+    modeValue: modeFromTotals(totals),
     stddev,
     zeroRate: zeros / trials,
     kakuhenRate: kakuhenN / trials,
     totsukakuRate: totsuN / trials,
     r16Rate: r16N / trials,
     meanTons: tonSum / trials,
+    finishRate: finishN / trials,
     freq: freqFromTotals(totals),
     cdf,
     nori: Array.from(nori),

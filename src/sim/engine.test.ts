@@ -5,7 +5,7 @@ import { buildNoriTable, handCounts } from "../domain/nori";
 import { initialState } from "../domain/initialState";
 import { runTrial } from "./engine";
 import { runSimulation } from "./stats";
-import { FREQ_CAP, freqFromTotals, sliceFreq } from "./histogram";
+import { FREQ_CAP, freqFromTotals, modeFromTotals, sliceFreq } from "./histogram";
 
 function wallOf(kinds: number[]): Uint8Array {
   return Uint8Array.from(kinds);
@@ -159,6 +159,9 @@ describe("シミュレーション集計", () => {
     expect(stats.kakuhenRate).toBe(1);
     expect(stats.freq).toHaveLength(401);
     expect(stats.freq.reduce((a, b) => a + b, 0)).toBe(500);
+    expect(stats.finishRate).toBeGreaterThanOrEqual(0);
+    expect(stats.finishRate).toBeLessThanOrEqual(1);
+    expect(Number.isInteger(stats.modeValue)).toBe(true);
   });
 });
 
@@ -179,5 +182,10 @@ describe("分布ビン", () => {
     expect(sliced[0]).toEqual({ label: "0", count: 1 });
     expect(sliced[49]).toEqual({ label: "49", count: 1 });
     expect(sliced[50]).toEqual({ label: "50+", count: 3 });
+  });
+
+  it("最頻値は最多の値、同数なら小さい方", () => {
+    expect(modeFromTotals([1, 2, 2, 3, 3])).toBe(2);
+    expect(modeFromTotals([0, 0, 0, 5])).toBe(0);
   });
 });

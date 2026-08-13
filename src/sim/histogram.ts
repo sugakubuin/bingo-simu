@@ -25,3 +25,21 @@ export function sliceFreq(
   data.push({ label: `${range}+`, count: overflow });
   return data;
 }
+
+export function modeFromTotals(totals: ArrayLike<number>): number {
+  const n = totals.length;
+  if (n === 0) return 0;
+  const counts = new Map<number, number>();
+  let best = totals[0];
+  let bestN = 0;
+  for (let i = 0; i < n; i++) {
+    const v = totals[i];
+    const c = (counts.get(v) ?? 0) + 1;
+    counts.set(v, c);
+    if (c > bestN || (c === bestN && v < best)) {
+      bestN = c;
+      best = v;
+    }
+  }
+  return best;
+}

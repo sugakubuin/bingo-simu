@@ -30,12 +30,14 @@ export type SimStats = {
   trials: number;
   mean: number;
   median: number;
+  modeValue: number;
   stddev: number;
   zeroRate: number;
   kakuhenRate: number;
   totsukakuRate: number;
   r16Rate: number;
   meanTons: number;
+  finishRate: number;
   freq: number[];
   cdf: { n: number; rate: number }[];
   nori: number[];
