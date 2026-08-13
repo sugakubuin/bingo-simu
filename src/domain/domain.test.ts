@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FLOWER, MAN7, P7, S7, nextOf, prevOf, tileName } from "./tiles";
+import { FLOWER, GRAND_CROSS, MAN7, P7, S7, nextOf, prevOf, tileName } from "./tiles";
 import { parseHand, formatHand, ParseError } from "./parse";
 import { buildNoriTable, handCounts } from "./nori";
 import { initialState } from "./initialState";
@@ -118,6 +118,17 @@ describe("のりテーブル", () => {
     expect(hand[0]).toBe(2);
     expect(hand[1]).toBe(4);
   });
+
+  it("グランドクロスは東南西北を 1 枚ずつ", () => {
+    const hand = handCounts([], [GRAND_CROSS]);
+    expect(hand[18]).toBe(1);
+    expect(hand[19]).toBe(1);
+    expect(hand[20]).toBe(1);
+    expect(hand[21]).toBe(1);
+    expect(hand[22]).toBe(0);
+    const nori = buildNoriTable(hand, 0);
+    expect(nori[18]).toBe(3);
+  });
 });
 
 describe("初期状態", () => {
@@ -168,6 +179,14 @@ describe("山", () => {
     expect(pool.length).toBe(108 - 14 - 2);
     expect([...pool].filter((t) => t === FLOWER).length).toBe(2);
   });
+
+  it("グランドクロスは風牌を 1 枚ずつ除く", () => {
+    const pool = remainingPool("ultra", [], [GRAND_CROSS], 0);
+    expect(pool.length).toBe(104);
+    expect([...pool].filter((t) => t === 18).length).toBe(3);
+    expect([...pool].filter((t) => t === 21).length).toBe(3);
+    expect([...pool].filter((t) => t === 22).length).toBe(4);
+  });
 });
 
 describe("バリデーション", () => {
@@ -196,6 +215,33 @@ describe("バリデーション", () => {
     });
     expect(errors).toEqual([]);
   });
+
+  it("グランドクロスはウルトラのみ、面前 11 枚", () => {
+    const concealed = parseHand("777888p777s東東");
+    expect(concealed.length).toBe(11);
+    expect(
+      validateInput({
+        mode: "ultra",
+        winType: "normal",
+        concealed,
+        kongs: [GRAND_CROSS],
+        flowers: 0,
+        tons: 20,
+        guard: 0,
+      }),
+    ).toEqual([]);
+    expect(
+      validateInput({
+        mode: "super",
+        winType: "normal",
+        concealed,
+        kongs: [GRAND_CROSS],
+        flowers: 0,
+        tons: 20,
+        guard: 0,
+      }).some((e) => e.includes("グランドクロス")),
+    ).toBe(true);
+  });
 });
 
 describe("牌名", () => {
@@ -204,5 +250,6 @@ describe("牌名", () => {
     expect(tileName(15)).toBe("7s");
     expect(tileName(18)).toBe("東");
     expect(tileName(FLOWER)).toBe("花");
+    expect(tileName(GRAND_CROSS)).toBe("グランドクロス");
   });
 });

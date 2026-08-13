@@ -1,4 +1,4 @@
-import { FLOWER, KIND_COUNT, MAN7, P7, S7, nextOf, prevOf } from "./tiles";
+import { FLOWER, KIND_COUNT, MAN7, P7, S7, expandKong, nextOf, prevOf } from "./tiles";
 
 export function handCounts(
   concealed: readonly number[],
@@ -6,7 +6,9 @@ export function handCounts(
 ): Uint8Array {
   const hand = new Uint8Array(KIND_COUNT);
   for (const t of concealed) hand[t]++;
-  for (const t of kongs) hand[t] += 4;
+  for (const t of kongs) {
+    for (const tile of expandKong(t)) hand[tile]++;
+  }
   return hand;
 }
 

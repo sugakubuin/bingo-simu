@@ -4,6 +4,9 @@ export const HONOR_START = 18;
 export const FLOWER = 25;
 export const MAN7 = 26;
 export const KIND_COUNT = 27;
+/** 槓子専用。東南西北を 1 枚ずつ。山の牌種ではない。 */
+export const GRAND_CROSS = 27;
+export const WINDS = [18, 19, 20, 21] as const;
 
 export const P7 = 6;
 export const S7 = 15;
@@ -46,6 +49,7 @@ export function tileName(kind: number): string {
   if (kind >= 18 && kind <= 24) return HONOR_NAMES[kind - 18];
   if (kind === FLOWER) return "花";
   if (kind === MAN7) return "7m";
+  if (kind === GRAND_CROSS) return "グランドクロス";
   return `?${kind}`;
 }
 
@@ -55,5 +59,11 @@ export function tileLabelJa(kind: number): string {
   if (kind >= 18 && kind <= 24) return HONOR_NAMES[kind - 18];
   if (kind === FLOWER) return "花";
   if (kind === MAN7) return "七萬";
+  if (kind === GRAND_CROSS) return "グランドクロス";
   return tileName(kind);
+}
+
+export function expandKong(kind: number): readonly number[] {
+  if (kind === GRAND_CROSS) return WINDS;
+  return [kind, kind, kind, kind];
 }

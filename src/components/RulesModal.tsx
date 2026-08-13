@@ -93,6 +93,9 @@ export function RulesModal({ open, onClose }: Props) {
                 山の 7m は 7p / 7s ののりが大きい方として扱う（nori(7m) = max(nori(7p), nori(7s))）。
               </li>
               <li>
+                槓子にグランドクロス（東南西北を 1 枚ずつ）を選べる。
+              </li>
+              <li>
                 <strong>花牌で 6 枚以上のれば突確する</strong>（抜き 2 枚以上）。
               </li>
             </ul>

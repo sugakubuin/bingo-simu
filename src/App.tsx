@@ -11,6 +11,7 @@ import { ParamsForm } from "./components/ParamsForm";
 import { ResultsSummary } from "./components/ResultsSummary";
 import { NoriTable } from "./components/NoriTable";
 import { useSimulation } from "./hooks/useSimulation";
+import { GRAND_CROSS, WINDS, expandKong } from "./domain/tiles";
 import type { Mode, SimInput, WinType } from "./types";
 
 const ResultsCharts = lazy(async () => {
@@ -23,7 +24,9 @@ const SAMPLE = parseHand("777888p777888s11z");
 function kindCount(concealed: number[], kongs: number[], kind: number): number {
   let n = 0;
   for (const t of concealed) if (t === kind) n++;
-  for (const t of kongs) if (t === kind) n += 4;
+  for (const t of kongs) {
+    for (const tile of expandKong(t)) if (tile === kind) n++;
+  }
   return n;
 }
 
@@ -62,8 +65,22 @@ export function App() {
   const canAddConcealed = (kind: number) =>
     concealed.length < expected && kindCount(concealed, kongs, kind) < 4;
 
-  const canAddKong = (kind: number) =>
-    kongs.length < 4 && kindCount(concealed, kongs, kind) === 0;
+  const canAddKong = (kind: number) => {
+    if (kongs.length >= 4) return false;
+    if (kind === GRAND_CROSS) {
+      if (mode !== "ultra") return false;
+      if (kongs.includes(GRAND_CROSS)) return false;
+      return WINDS.every((w) => kindCount(concealed, kongs, w) < 4);
+    }
+    return kindCount(concealed, kongs, kind) === 0;
+  };
+
+  const onModeChange = (next: Mode) => {
+    setMode(next);
+    if (next !== "ultra") {
+      setKongs((ks) => ks.filter((k) => k !== GRAND_CROSS));
+    }
+  };
 
   const onAddTile = (kind: number) => {
     if (!canAddConcealed(kind)) return;
@@ -118,7 +135,7 @@ export function App() {
 
       <main className="page">
         <section className="rail" aria-label="入力">
-          <ModeToggle value={mode} onChange={setMode} />
+          <ModeToggle value={mode} onChange={onModeChange} />
           <WinTypeSelect value={winType} onChange={setWinType} />
           <p className="help">
             初期状態（自動判定）{" "}
@@ -135,6 +152,7 @@ export function App() {
           />
           <KongInput
             kongs={kongs}
+            mode={mode}
             onAdd={onAddKong}
             onRemoveAt={onRemoveKong}
             canAdd={canAddKong}

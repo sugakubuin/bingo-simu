@@ -1,4 +1,4 @@
-import { FLOWER, KIND_COUNT, MAN7, P7, S7 } from "./tiles";
+import { FLOWER, KIND_COUNT, MAN7, P7, S7, expandKong } from "./tiles";
 import type { Mode } from "../types";
 
 export function fullSetCounts(mode: Mode): Uint8Array {
@@ -34,10 +34,12 @@ export function remainingPool(
     counts[t]--;
   }
   for (const t of kongs) {
-    if (counts[t] < 4) {
-      throw new Error("槓子が山の構成を超えています");
+    for (const tile of expandKong(t)) {
+      if (counts[tile] === 0) {
+        throw new Error("槓子が山の構成を超えています");
+      }
+      counts[tile]--;
     }
-    counts[t] -= 4;
   }
   if (counts[FLOWER] < flowers) {
     throw new Error("花牌の抜き枚数が山を超えています");

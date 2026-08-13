@@ -1,4 +1,4 @@
-import { KIND_COUNT, tileName } from "./tiles";
+import { GRAND_CROSS, KIND_COUNT, expandKong, tileName } from "./tiles";
 import { fullSetSize } from "./wall";
 import type { SimInput } from "../types";
 
@@ -18,13 +18,23 @@ export function validateInput(input: SimInput): string[] {
     }
     counts[t]++;
   }
+  let grandCross = 0;
   for (const t of input.kongs) {
+    if (t === GRAND_CROSS) {
+      grandCross++;
+      if (input.mode !== "ultra") {
+        errors.push("グランドクロスはウルトラビンゴのみです");
+      }
+      for (const tile of expandKong(t)) counts[tile]++;
+      continue;
+    }
     if (t < 0 || t > 24) {
       errors.push("槓子に使えない牌があります");
       continue;
     }
     counts[t] += 4;
   }
+  if (grandCross > 1) errors.push("グランドクロスは 1 組までです");
   for (let i = 0; i <= 24; i++) {
     if (counts[i] > 4) {
       errors.push(`${tileName(i)} が ${counts[i]} 枚あります（最大 4）`);
