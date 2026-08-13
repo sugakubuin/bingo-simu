@@ -7,7 +7,7 @@ import { freqFromTotals } from "./histogram";
 import type { SimInput, SimStats } from "../types";
 
 export const TRIALS = 100_000;
-const CDF_POINTS = [1, 3, 5, 10, 20, 30, 50];
+const CDF_POINTS = [1, 5, 10, 20, 50, 100, 200, 400];
 
 export type ProgressFn = (done: number, total: number) => void;
 
