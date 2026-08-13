@@ -1,0 +1,8 @@
+{
+  "date": "2026-08-13",
+  "fontStack": "Space Grotesk + Inter + JetBrains Mono (Cobalt)",
+  "palette": "OKLCH Cobalt tokens in tokens.css",
+  "motion": "none installed — CSS-only (count-up, CTA lift, progress)",
+  "spacing": "4pt named scale in tokens.css",
+  "framework": "Vite + React 19 + Tailwind v4"
+}
