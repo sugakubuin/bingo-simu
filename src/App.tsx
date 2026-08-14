@@ -7,11 +7,13 @@ import { ModeToggle } from "./components/ModeToggle";
 import { WinTypeSelect } from "./components/WinTypeSelect";
 import { HandInput, tryParseText } from "./components/HandInput";
 import { KongInput } from "./components/KongInput";
+import { ExcludeInput } from "./components/ExcludeInput";
 import { ParamsForm } from "./components/ParamsForm";
 import { ResultsSummary } from "./components/ResultsSummary";
 import { NoriTable } from "./components/NoriTable";
 import { useSimulation } from "./hooks/useSimulation";
-import { GRAND_CROSS, WINDS, expandKong } from "./domain/tiles";
+import { FLOWER, GRAND_CROSS, MAN7, WINDS, expandKong } from "./domain/tiles";
+import { fullSetCounts } from "./domain/wall";
 import type { Mode, SimInput, WinType } from "./types";
 
 const ResultsCharts = lazy(async () => {
@@ -40,6 +42,7 @@ export function App() {
   const [flowers, setFlowers] = useState(0);
   const [tons, setTons] = useState(20);
   const [guard, setGuard] = useState(0);
+  const [excluded, setExcluded] = useState<number[]>([]);
   const sim = useSimulation();
 
   const input: SimInput = {
@@ -50,6 +53,7 @@ export function App() {
     flowers,
     tons,
     guard,
+    excluded,
   };
   const errors = validateInput(input);
   const expected = 14 - 3 * kongs.length;
@@ -75,11 +79,27 @@ export function App() {
     return kindCount(concealed, kongs, kind) === 0;
   };
 
+  const remainingOf = (kind: number) => {
+    const full = fullSetCounts(mode)[kind] ?? 0;
+    const inHand = kindCount(concealed, kongs, kind);
+    const flowerUsed = kind === FLOWER ? flowers : 0;
+    const ex = excluded.filter((t) => t === kind).length;
+    return full - inHand - flowerUsed - ex;
+  };
+
   const onModeChange = (next: Mode) => {
     setMode(next);
     if (next !== "ultra") {
       setKongs((ks) => ks.filter((k) => k !== GRAND_CROSS));
+      setExcluded((xs) => xs.filter((k) => k !== MAN7));
     }
+  };
+
+  const onResetHand = () => {
+    setConcealed([]);
+    setText("");
+    setTextError(null);
+    setKongs([]);
   };
 
   const onAddTile = (kind: number) => {
@@ -117,6 +137,22 @@ export function App() {
     setKongs(kongs.filter((_, i) => i !== index));
   };
 
+  const onAddExcluded = (kind: number) => {
+    setExcluded((xs) => {
+      const used =
+        kindCount(concealed, kongs, kind) +
+        (kind === FLOWER ? flowers : 0) +
+        xs.filter((t) => t === kind).length;
+      const full = fullSetCounts(mode)[kind] ?? 0;
+      if (used >= full) return xs;
+      return [...xs, kind];
+    });
+  };
+
+  const onRemoveExcludedAt = (index: number) => {
+    setExcluded((xs) => xs.filter((_, i) => i !== index));
+  };
+
   const run = () => {
     if (errors.length || textError) return;
     sim.run(input);
@@ -148,6 +184,7 @@ export function App() {
             onTextChange={onTextChange}
             onAdd={onAddTile}
             onRemoveAt={onRemoveTile}
+            onReset={onResetHand}
             canAdd={canAddConcealed}
           />
           <KongInput
@@ -156,6 +193,14 @@ export function App() {
             onAdd={onAddKong}
             onRemoveAt={onRemoveKong}
             canAdd={canAddKong}
+          />
+          <ExcludeInput
+            excluded={excluded}
+            mode={mode}
+            onAdd={onAddExcluded}
+            onRemoveAt={onRemoveExcludedAt}
+            onReset={() => setExcluded([])}
+            remainingOf={remainingOf}
           />
           <ParamsForm
             flowers={flowers}
@@ -208,7 +253,7 @@ export function App() {
               <p className="mono-label">Result</p>
               <h2>まだ結果はありません</h2>
               <p className="help">
-                面前 {expected} 枚を入れて実行すると、期待値と分布が出ます。
+                {expected} 枚 / 槓 {kongs.length} を入れて実行すると、期待値と分布が出ます。
               </p>
             </div>
           ) : null}

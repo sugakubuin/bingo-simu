@@ -133,6 +133,7 @@ describe("シミュレーション集計", () => {
       flowers: 0,
       tons: 8,
       guard: 0,
+      excluded: [] as number[],
     };
     const a = runSimulation(input, { trials: 2000, seed: 1 });
     const b = runSimulation(input, { trials: 2000, seed: 1 });
@@ -152,6 +153,7 @@ describe("シミュレーション集計", () => {
         flowers: 0,
         tons: 5,
         guard: 0,
+        excluded: [],
       },
       { trials: 500, seed: 42 },
     );

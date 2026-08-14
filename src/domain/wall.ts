@@ -25,6 +25,7 @@ export function remainingPool(
   concealed: readonly number[],
   kongs: readonly number[],
   flowers: number,
+  excluded: readonly number[] = [],
 ): Uint8Array {
   const counts = fullSetCounts(mode);
   for (const t of concealed) {
@@ -45,6 +46,12 @@ export function remainingPool(
     throw new Error("花牌の抜き枚数が山を超えています");
   }
   counts[FLOWER] -= flowers;
+  for (const t of excluded) {
+    if (counts[t] === 0) {
+      throw new Error("除外牌が山の構成を超えています");
+    }
+    counts[t]--;
+  }
 
   let size = 0;
   for (let k = 0; k < KIND_COUNT; k++) size += counts[k];

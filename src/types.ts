@@ -10,6 +10,7 @@ export type SimInput = {
   flowers: number;
   tons: number;
   guard: number;
+  excluded: number[];
 };
 
 export type InitialState = {

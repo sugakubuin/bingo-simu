@@ -20,7 +20,13 @@ export function runSimulation(
   const hand = handCounts(input.concealed, input.kongs);
   const nori = buildNoriTable(hand, input.flowers);
   const initial = initialState(hand, input.winType);
-  const pool = remainingPool(input.mode, input.concealed, input.kongs, input.flowers);
+  const pool = remainingPool(
+    input.mode,
+    input.concealed,
+    input.kongs,
+    input.flowers,
+    input.excluded,
+  );
   const n2 = 2 * input.tons;
   const buf = new Uint8Array(pool.length);
 

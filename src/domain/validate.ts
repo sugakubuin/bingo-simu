@@ -1,5 +1,5 @@
-import { GRAND_CROSS, KIND_COUNT, expandKong, tileName } from "./tiles";
-import { fullSetSize } from "./wall";
+import { FLOWER, GRAND_CROSS, KIND_COUNT, MAN7, expandKong, tileName } from "./tiles";
+import { fullSetCounts, fullSetSize } from "./wall";
 import type { SimInput } from "../types";
 
 export function validateInput(input: SimInput): string[] {
@@ -8,7 +8,7 @@ export function validateInput(input: SimInput): string[] {
   if (k < 0 || k > 4) errors.push("槓子は 0–4 組です");
   const expected = 14 - 3 * k;
   if (input.concealed.length !== expected) {
-    errors.push(`面前は ${expected} 枚必要です（いま ${input.concealed.length} 枚）`);
+    errors.push(`${expected} 枚 / 槓 ${k} が必要です（いま ${input.concealed.length} 枚）`);
   }
   const counts = new Uint8Array(KIND_COUNT);
   for (const t of input.concealed) {
@@ -49,9 +49,36 @@ export function validateInput(input: SimInput): string[] {
   if (input.guard < 0 || input.guard > 3) {
     errors.push("転落保証は 0–3 です");
   }
+
+  const wall = fullSetCounts(input.mode);
+  for (let i = 0; i < KIND_COUNT; i++) {
+    const used = counts[i] + (i === FLOWER ? input.flowers : 0);
+    if (used > wall[i]) {
+      errors.push(`${tileName(i)} が山の枚数を超えています`);
+    } else {
+      wall[i] -= used;
+    }
+  }
+  const excluded = input.excluded ?? [];
+  for (const t of excluded) {
+    if (t === MAN7 && input.mode !== "ultra") {
+      errors.push("7m の除外はウルトラビンゴのみです");
+      continue;
+    }
+    if (t < 0 || t >= KIND_COUNT) {
+      errors.push("除外できない牌があります");
+      continue;
+    }
+    if (wall[t] === 0) {
+      errors.push(`${tileName(t)} を山からそれ以上除外できません`);
+      continue;
+    }
+    wall[t]--;
+  }
+
   const wallNeed = 2 * input.tons;
   const remain =
-    fullSetSize(input.mode) - (14 + k) - input.flowers;
+    fullSetSize(input.mode) - (14 + k) - input.flowers - excluded.length;
   if (wallNeed > remain) {
     errors.push("残り牌が足りず、指定トン数の山を作れません");
   }

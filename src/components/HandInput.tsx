@@ -10,6 +10,7 @@ type Props = {
   onTextChange: (text: string) => void;
   onAdd: (kind: number) => void;
   onRemoveAt: (index: number) => void;
+  onReset: () => void;
   canAdd: (kind: number) => boolean;
 };
 
@@ -20,6 +21,7 @@ export function HandInput({
   onTextChange,
   onAdd,
   onRemoveAt,
+  onReset,
   canAdd,
 }: Props) {
   const pinzu = HAND_KINDS.filter((k) => k <= 8);
@@ -28,7 +30,17 @@ export function HandInput({
 
   return (
     <div className="field">
-      <label>基本手牌</label>
+      <div className="field-head">
+        <label>基本手牌</label>
+        <button
+          type="button"
+          className="btn btn-ghost btn-compact"
+          onClick={onReset}
+          title="面前と槓子を空にする"
+        >
+          リセット
+        </button>
+      </div>
       <p className="help">
         牌をタップして追加。手牌の牌をタップすると外す。槓子は下で入力。
       </p>

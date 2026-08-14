@@ -187,6 +187,13 @@ describe("山", () => {
     expect([...pool].filter((t) => t === 21).length).toBe(3);
     expect([...pool].filter((t) => t === 22).length).toBe(4);
   });
+
+  it("指定した牌を山から除外する", () => {
+    const pool = remainingPool("ultra", [], [], 0, [18, 18, FLOWER]);
+    expect(pool.length).toBe(105);
+    expect([...pool].filter((t) => t === 18).length).toBe(2);
+    expect([...pool].filter((t) => t === FLOWER).length).toBe(3);
+  });
 });
 
 describe("バリデーション", () => {
@@ -199,6 +206,7 @@ describe("バリデーション", () => {
       flowers: 0,
       tons: 20,
       guard: 0,
+      excluded: [],
     });
     expect(errors.some((e) => e.includes("1p"))).toBe(true);
   });
@@ -212,6 +220,7 @@ describe("バリデーション", () => {
       flowers: 0,
       tons: 20,
       guard: 0,
+      excluded: [],
     });
     expect(errors).toEqual([]);
   });
@@ -228,6 +237,7 @@ describe("バリデーション", () => {
         flowers: 0,
         tons: 20,
         guard: 0,
+        excluded: [],
       }),
     ).toEqual([]);
     expect(
@@ -239,7 +249,26 @@ describe("バリデーション", () => {
         flowers: 0,
         tons: 20,
         guard: 0,
+        excluded: [],
       }).some((e) => e.includes("グランドクロス")),
+    ).toBe(true);
+  });
+
+  it("山からの除外は残り枚数を見る", () => {
+    const base = {
+      mode: "ultra" as const,
+      winType: "normal" as const,
+      concealed: parseHand("777888p777888s東東"),
+      kongs: [] as number[],
+      flowers: 0,
+      tons: 20,
+      guard: 0,
+    };
+    expect(validateInput({ ...base, excluded: [0, 0, 0, 0] })).toEqual([]);
+    expect(
+      validateInput({ ...base, excluded: [0, 0, 0, 0, 0] }).some((e) =>
+        e.includes("1p"),
+      ),
     ).toBe(true);
   });
 });

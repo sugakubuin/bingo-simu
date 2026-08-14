@@ -444,8 +444,34 @@ textarea {
   }
 }
 
-.btn-ghost {
-  background: transparent;
+.field-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.field-head label {
+  margin: 0;
+}
+
+.btn-compact {
+  min-height: 44px;
+  padding: 0 var(--space-sm);
+  font-size: var(--text-xs);
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+}
+
+.exclude-strip {
+  align-content: start;
+}
+
+.exclude-strip.is-wrap {
+  min-height: calc(
+    2 * ((100cqi - 13 * var(--tile-gap)) / 14 * 4 / 3) + var(--tile-gap) + 2 *
+      var(--space-2xs) + 4px
+  );
 }
 
 .cta-sticky {
