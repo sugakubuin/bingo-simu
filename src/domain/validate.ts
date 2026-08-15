@@ -60,23 +60,31 @@ export function validateInput(input: SimInput): string[] {
     }
   }
   const excluded = input.excluded ?? [];
-  for (const t of excluded) {
-    if (t === MAN7 && input.mode !== "ultra") {
-      errors.push("7m の除外はウルトラビンゴのみです");
-      continue;
+  const forced = input.forced ?? [];
+  const takeFromWall = (tiles: readonly number[], label: string) => {
+    for (const t of tiles) {
+      if (t === MAN7 && input.mode !== "ultra") {
+        errors.push(`7m の${label}はウルトラビンゴのみです`);
+        continue;
+      }
+      if (t < 0 || t >= KIND_COUNT) {
+        errors.push(`${label}できない牌があります`);
+        continue;
+      }
+      if (wall[t] === 0) {
+        errors.push(`${tileName(t)} をそれ以上${label}できません`);
+        continue;
+      }
+      wall[t]--;
     }
-    if (t < 0 || t >= KIND_COUNT) {
-      errors.push("除外できない牌があります");
-      continue;
-    }
-    if (wall[t] === 0) {
-      errors.push(`${tileName(t)} を山からそれ以上除外できません`);
-      continue;
-    }
-    wall[t]--;
-  }
+  };
+  takeFromWall(excluded, "除外");
+  takeFromWall(forced, "確定");
 
   const wallNeed = 2 * input.tons;
+  if (forced.length > wallNeed) {
+    errors.push("確定牌が残りトンの山に入りきりません");
+  }
   const remain =
     fullSetSize(input.mode) - (14 + k) - input.flowers - excluded.length;
   if (wallNeed > remain) {

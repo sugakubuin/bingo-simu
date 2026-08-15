@@ -7,13 +7,13 @@ import { ModeToggle } from "./components/ModeToggle";
 import { WinTypeSelect } from "./components/WinTypeSelect";
 import { HandInput, tryParseText } from "./components/HandInput";
 import { KongInput } from "./components/KongInput";
-import { ExcludeInput } from "./components/ExcludeInput";
+import { WallTilesInput } from "./components/ExcludeInput";
 import { ParamsForm } from "./components/ParamsForm";
 import { ResultsSummary } from "./components/ResultsSummary";
 import { NoriTable } from "./components/NoriTable";
 import { useSimulation } from "./hooks/useSimulation";
 import { FLOWER, GRAND_CROSS, MAN7, WINDS, expandKong } from "./domain/tiles";
-import { fullSetCounts } from "./domain/wall";
+import { fullSetCounts, fullSetSize } from "./domain/wall";
 import type { Mode, SimInput, WinType } from "./types";
 
 const ResultsCharts = lazy(async () => {
@@ -32,6 +32,22 @@ function kindCount(concealed: number[], kongs: number[], kind: number): number {
   return n;
 }
 
+function usedOf(
+  concealed: number[],
+  kongs: number[],
+  flowers: number,
+  excluded: number[],
+  forced: number[],
+  kind: number,
+): number {
+  return (
+    kindCount(concealed, kongs, kind) +
+    (kind === FLOWER ? flowers : 0) +
+    excluded.filter((t) => t === kind).length +
+    forced.filter((t) => t === kind).length
+  );
+}
+
 export function App() {
   const [mode, setMode] = useState<Mode>("super");
   const [winType, setWinType] = useState<WinType>("normal");
@@ -43,6 +59,7 @@ export function App() {
   const [tons, setTons] = useState(20);
   const [guard, setGuard] = useState(0);
   const [excluded, setExcluded] = useState<number[]>([]);
+  const [forced, setForced] = useState<number[]>([]);
   const sim = useSimulation();
 
   const input: SimInput = {
@@ -54,6 +71,7 @@ export function App() {
     tons,
     guard,
     excluded,
+    forced,
   };
   const errors = validateInput(input);
   const expected = 14 - 3 * kongs.length;
@@ -66,25 +84,33 @@ export function App() {
     };
   }, [concealed, kongs, flowers, winType]);
 
+  const remainingOf = (kind: number) =>
+    (fullSetCounts(mode)[kind] ?? 0) -
+    usedOf(concealed, kongs, flowers, excluded, forced, kind);
+
+  const wallSlack =
+    fullSetSize(mode) - (14 + kongs.length) - flowers - excluded.length - 2 * tons;
+  const maxFlowers = Math.min(
+    4,
+    flowers + Math.max(0, remainingOf(FLOWER)),
+    Math.max(flowers, wallSlack + flowers),
+  );
+
   const canAddConcealed = (kind: number) =>
-    concealed.length < expected && kindCount(concealed, kongs, kind) < 4;
+    concealed.length < expected &&
+    kindCount(concealed, kongs, kind) < 4 &&
+    remainingOf(kind) > 0;
 
   const canAddKong = (kind: number) => {
     if (kongs.length >= 4) return false;
     if (kind === GRAND_CROSS) {
       if (mode !== "ultra") return false;
       if (kongs.includes(GRAND_CROSS)) return false;
-      return WINDS.every((w) => kindCount(concealed, kongs, w) < 4);
+      return WINDS.every(
+        (w) => kindCount(concealed, kongs, w) < 4 && remainingOf(w) > 0,
+      );
     }
-    return kindCount(concealed, kongs, kind) === 0;
-  };
-
-  const remainingOf = (kind: number) => {
-    const full = fullSetCounts(mode)[kind] ?? 0;
-    const inHand = kindCount(concealed, kongs, kind);
-    const flowerUsed = kind === FLOWER ? flowers : 0;
-    const ex = excluded.filter((t) => t === kind).length;
-    return full - inHand - flowerUsed - ex;
+    return kindCount(concealed, kongs, kind) === 0 && remainingOf(kind) >= 4;
   };
 
   const onModeChange = (next: Mode) => {
@@ -92,6 +118,7 @@ export function App() {
     if (next !== "ultra") {
       setKongs((ks) => ks.filter((k) => k !== GRAND_CROSS));
       setExcluded((xs) => xs.filter((k) => k !== MAN7));
+      setForced((xs) => xs.filter((k) => k !== MAN7));
     }
   };
 
@@ -139,18 +166,30 @@ export function App() {
 
   const onAddExcluded = (kind: number) => {
     setExcluded((xs) => {
-      const used =
-        kindCount(concealed, kongs, kind) +
-        (kind === FLOWER ? flowers : 0) +
-        xs.filter((t) => t === kind).length;
+      const remainAfter =
+        fullSetSize(mode) - (14 + kongs.length) - flowers - (xs.length + 1);
+      if (remainAfter < 2 * tons) return xs;
       const full = fullSetCounts(mode)[kind] ?? 0;
-      if (used >= full) return xs;
+      if (usedOf(concealed, kongs, flowers, xs, forced, kind) >= full) return xs;
       return [...xs, kind];
     });
   };
 
   const onRemoveExcludedAt = (index: number) => {
     setExcluded((xs) => xs.filter((_, i) => i !== index));
+  };
+
+  const onAddForced = (kind: number) => {
+    setForced((xs) => {
+      if (xs.length >= 2 * tons) return xs;
+      const full = fullSetCounts(mode)[kind] ?? 0;
+      if (usedOf(concealed, kongs, flowers, excluded, xs, kind) >= full) return xs;
+      return [...xs, kind];
+    });
+  };
+
+  const onRemoveForcedAt = (index: number) => {
+    setForced((xs) => xs.filter((_, i) => i !== index));
   };
 
   const run = () => {
@@ -166,7 +205,7 @@ export function App() {
         <a className="wordmark" href="/">
           ビンゴ捲りシミュレータ
         </a>
-        <p className="nav-meta">10 万回試行で期待値と分布を計算</p>
+        <p className="nav-meta">10万回試行で期待値と分布を計算</p>
       </header>
 
       <main className="page">
@@ -194,21 +233,40 @@ export function App() {
             onRemoveAt={onRemoveKong}
             canAdd={canAddKong}
           />
-          <ExcludeInput
-            excluded={excluded}
-            mode={mode}
-            onAdd={onAddExcluded}
-            onRemoveAt={onRemoveExcludedAt}
-            onReset={() => setExcluded([])}
-            remainingOf={remainingOf}
-          />
           <ParamsForm
             flowers={flowers}
             tons={tons}
             guard={guard}
-            onFlowers={setFlowers}
+            maxFlowers={maxFlowers}
+            onFlowers={(n) => setFlowers(Math.min(n, maxFlowers))}
             onTons={(n) => setTons(Math.min(30, Math.max(1, n || 1)))}
             onGuard={setGuard}
+          />
+          <WallTilesInput
+            tiles={excluded}
+            mode={mode}
+            label="山から除外"
+            help="河・他家・ドラ表示など、山に残さない牌。生成する各山から除きます。"
+            empty="除外なし"
+            resetTitle="除外を空にする"
+            addTitle="除外する"
+            onAdd={onAddExcluded}
+            onRemoveAt={onRemoveExcludedAt}
+            onReset={() => setExcluded([])}
+            remainingOf={(k) => (wallSlack <= 0 ? 0 : remainingOf(k))}
+          />
+          <WallTilesInput
+            tiles={forced}
+            mode={mode}
+            label="山に確定"
+            help="生成する各山に必ず含める牌。位置はランダムです。"
+            empty="確定なし"
+            resetTitle="確定を空にする"
+            addTitle="確定する"
+            onAdd={onAddForced}
+            onRemoveAt={onRemoveForcedAt}
+            onReset={() => setForced([])}
+            remainingOf={(k) => (forced.length >= 2 * tons ? 0 : remainingOf(k))}
           />
           {errors.map((e) => (
             <p key={e} className="err">

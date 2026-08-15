@@ -5,7 +5,7 @@ import { buildNoriTable, handCounts } from "../domain/nori";
 import { initialState } from "../domain/initialState";
 import { runTrial } from "./engine";
 import { runSimulation } from "./stats";
-import { FREQ_CAP, freqFromTotals, modeFromTotals, sliceFreq } from "./histogram";
+import { FREQ_CAP, freqFromTotals, modeFromTotals, sliceFreq, survivalFromFreq, tScore } from "./histogram";
 
 function wallOf(kinds: number[]): Uint8Array {
   return Uint8Array.from(kinds);
@@ -134,6 +134,7 @@ describe("シミュレーション集計", () => {
       tons: 8,
       guard: 0,
       excluded: [] as number[],
+      forced: [] as number[],
     };
     const a = runSimulation(input, { trials: 2000, seed: 1 });
     const b = runSimulation(input, { trials: 2000, seed: 1 });
@@ -154,6 +155,7 @@ describe("シミュレーション集計", () => {
         tons: 5,
         guard: 0,
         excluded: [],
+        forced: [],
       },
       { trials: 500, seed: 42 },
     );
@@ -164,6 +166,27 @@ describe("シミュレーション集計", () => {
     expect(stats.finishRate).toBeGreaterThanOrEqual(0);
     expect(stats.finishRate).toBeLessThanOrEqual(1);
     expect(Number.isInteger(stats.modeValue)).toBe(true);
+    expect(Number.isInteger(stats.max)).toBe(true);
+    expect(stats.max).toBeGreaterThanOrEqual(stats.modeValue);
+  });
+
+  it("リーチ役満の 777 は初期 16R", () => {
+    const stats = runSimulation(
+      {
+        mode: "ultra",
+        winType: "riichiYakuman",
+        concealed: parseHand("777888p111222s東東"),
+        kongs: [],
+        flowers: 0,
+        tons: 5,
+        guard: 0,
+        excluded: [],
+        forced: [],
+      },
+      { trials: 200, seed: 7 },
+    );
+    expect(stats.initial.label).toBe("16R");
+    expect(stats.r16Rate).toBe(1);
   });
 });
 
@@ -189,5 +212,20 @@ describe("分布ビン", () => {
   it("最頻値は最多の値、同数なら小さい方", () => {
     expect(modeFromTotals([1, 2, 2, 3, 3])).toBe(2);
     expect(modeFromTotals([0, 0, 0, 5])).toBe(0);
+  });
+
+  it("累積（以上）は右からの合計", () => {
+    const freq = freqFromTotals([0, 0, 2, 5, 5]);
+    const s = survivalFromFreq(freq);
+    expect(s[0]).toBe(5);
+    expect(s[2]).toBe(3);
+    expect(s[5]).toBe(2);
+    expect(s[6]).toBe(0);
+  });
+
+  it("偏差値は平均で 50", () => {
+    expect(tScore(10, 10, 4)).toBe(50);
+    expect(tScore(14, 10, 4)).toBe(60);
+    expect(tScore(6, 10, 0)).toBe(50);
   });
 });

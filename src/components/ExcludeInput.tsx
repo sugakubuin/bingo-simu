@@ -4,17 +4,27 @@ import { TileButton } from "../ui/TileButton";
 import type { Mode } from "../types";
 
 type Props = {
-  excluded: number[];
+  tiles: number[];
   mode: Mode;
+  label: string;
+  help: string;
+  empty: string;
+  resetTitle: string;
+  addTitle: string;
   onAdd: (kind: number) => void;
   onRemoveAt: (index: number) => void;
   onReset: () => void;
   remainingOf: (kind: number) => number;
 };
 
-export function ExcludeInput({
-  excluded,
+export function WallTilesInput({
+  tiles,
   mode,
+  label,
+  help,
+  empty,
+  resetTitle,
+  addTitle,
   onAdd,
   onRemoveAt,
   onReset,
@@ -29,27 +39,25 @@ export function ExcludeInput({
   return (
     <div className="field">
       <div className="field-head">
-        <label>山から除外</label>
+        <label>{label}</label>
         <button
           type="button"
           className="btn btn-ghost btn-compact"
           onClick={onReset}
-          title="除外した牌をすべて戻す"
+          title={resetTitle}
         >
           リセット
         </button>
       </div>
-      <p className="help">
-        見えている河・他家の手牌など、山に残っていない牌を指定します。タップで追加、除外中の牌をタップすると外します。
-      </p>
+      <p className="help">{help}</p>
       <div
-        className={`hand-strip exclude-strip${excluded.length > 14 ? " is-wrap" : ""}`}
-        aria-label="除外した牌"
+        className={`hand-strip exclude-strip${tiles.length > 14 ? " is-wrap" : ""}`}
+        aria-label={label}
       >
-        {excluded.length === 0 ? (
-          <span className="help">除外なし</span>
+        {tiles.length === 0 ? (
+          <span className="help">{empty}</span>
         ) : (
-          excluded.map((kind, i) => (
+          tiles.map((kind, i) => (
             <button
               key={`${kind}-${i}`}
               type="button"
@@ -63,7 +71,7 @@ export function ExcludeInput({
         )}
       </div>
       <div className="tile-palette">
-        <div className="tile-row" aria-label="除外・筒子">
+        <div className="tile-row" aria-label={`${label}・筒子`}>
           {pinzu.map((k) => (
             <TileButton
               key={k}
@@ -71,11 +79,11 @@ export function ExcludeInput({
               onClick={() => onAdd(k)}
               disabled={!canAdd(k)}
               dim={!canAdd(k)}
-              title={`${tileName(k)} を山から除外`}
+              title={`${tileName(k)} を${addTitle}`}
             />
           ))}
         </div>
-        <div className="tile-row" aria-label="除外・索子">
+        <div className="tile-row" aria-label={`${label}・索子`}>
           {souzu.map((k) => (
             <TileButton
               key={k}
@@ -83,11 +91,11 @@ export function ExcludeInput({
               onClick={() => onAdd(k)}
               disabled={!canAdd(k)}
               dim={!canAdd(k)}
-              title={`${tileName(k)} を山から除外`}
+              title={`${tileName(k)} を${addTitle}`}
             />
           ))}
         </div>
-        <div className="tile-row" aria-label="除外・字牌">
+        <div className="tile-row" aria-label={`${label}・字牌`}>
           {[...honors, ...extras].map((k) => (
             <TileButton
               key={k}
@@ -95,7 +103,7 @@ export function ExcludeInput({
               onClick={() => onAdd(k)}
               disabled={!canAdd(k)}
               dim={!canAdd(k)}
-              title={`${tileName(k)} を山から除外`}
+              title={`${tileName(k)} を${addTitle}`}
             />
           ))}
         </div>

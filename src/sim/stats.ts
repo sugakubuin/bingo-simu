@@ -7,7 +7,6 @@ import { freqFromTotals, modeFromTotals } from "./histogram";
 import type { SimInput, SimStats } from "../types";
 
 export const TRIALS = 100_000;
-const CDF_POINTS = [1, 5, 10, 20, 50, 100, 200, 400];
 
 export type ProgressFn = (done: number, total: number) => void;
 
@@ -26,9 +25,10 @@ export function runSimulation(
     input.kongs,
     input.flowers,
     input.excluded,
+    input.forced,
   );
   const n2 = 2 * input.tons;
-  const buf = new Uint8Array(pool.length);
+  const buf = new Uint8Array(n2);
 
   const totals = new Uint16Array(trials);
   let sum = 0;
@@ -39,9 +39,10 @@ export function runSimulation(
   let r16N = 0;
   let tonSum = 0;
   let finishN = 0;
+  let maxTotal = 0;
 
   for (let t = 0; t < trials; t++) {
-    drawWall(pool, n2, rng, buf);
+    drawWall(pool, n2, rng, buf, input.forced ?? []);
     const r = runTrial(
       buf,
       nori,
@@ -60,6 +61,7 @@ export function runSimulation(
     if (r.is16R) r16N++;
     tonSum += r.tonUsed;
     if (r.tonUsed === input.tons) finishN++;
+    if (r.total > maxTotal) maxTotal = r.total;
     if (options.onProgress && (t + 1) % 5000 === 0) {
       options.onProgress(t + 1, trials);
     }
@@ -75,12 +77,6 @@ export function runSimulation(
   const variance = sumSq / trials - mean * mean;
   const stddev = Math.sqrt(Math.max(0, variance));
 
-  const cdf = CDF_POINTS.map((threshold) => {
-    let c = 0;
-    for (let i = 0; i < trials; i++) if (sorted[i] >= threshold) c++;
-    return { n: threshold, rate: c / trials };
-  });
-
   return {
     trials,
     mean,
@@ -93,8 +89,8 @@ export function runSimulation(
     r16Rate: r16N / trials,
     meanTons: tonSum / trials,
     finishRate: finishN / trials,
+    max: maxTotal,
     freq: freqFromTotals(totals),
-    cdf,
     nori: Array.from(nori),
     initial,
   };

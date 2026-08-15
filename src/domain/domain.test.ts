@@ -3,7 +3,7 @@ import { FLOWER, GRAND_CROSS, MAN7, P7, S7, nextOf, prevOf, tileName } from "./t
 import { parseHand, formatHand, ParseError } from "./parse";
 import { buildNoriTable, handCounts } from "./nori";
 import { initialState } from "./initialState";
-import { fullSetCounts, fullSetSize, remainingPool } from "./wall";
+import { fullSetCounts, fullSetSize, remainingPool, drawWall } from "./wall";
 import { validateInput } from "./validate";
 
 describe("循環", () => {
@@ -150,6 +150,15 @@ describe("初期状態", () => {
     expect(initialState(hand, "riichiYakuman").label).toBe("確変");
   });
 
+  it("リーチ役満の 777 は 16R", () => {
+    const hand = new Uint8Array(27);
+    hand[P7] = 3;
+    expect(initialState(hand, "riichiYakuman").label).toBe("16R");
+    expect(initialState(hand, "riichiYakuman").is16R).toBe(true);
+    hand[S7] = 3;
+    expect(initialState(hand, "riichiYakuman").label).toBe("16R");
+  });
+
   it("通常手とリーチなし役満は同じ", () => {
     const hand = new Uint8Array(27);
     expect(initialState(hand, "normal")).toEqual(
@@ -194,6 +203,22 @@ describe("山", () => {
     expect([...pool].filter((t) => t === 18).length).toBe(2);
     expect([...pool].filter((t) => t === FLOWER).length).toBe(3);
   });
+
+  it("確定牌はプールから除き、毎回山に入る", () => {
+    const forced = [FLOWER, MAN7, 0];
+    const pool = remainingPool("ultra", [], [], 0, [], forced);
+    expect(pool.length).toBe(105);
+    expect([...pool].filter((t) => t === FLOWER).length).toBe(3);
+    expect([...pool].filter((t) => t === MAN7).length).toBe(3);
+    expect([...pool].filter((t) => t === 0).length).toBe(3);
+    for (let n = 0; n < 40; n++) {
+      const dest = new Uint8Array(10);
+      drawWall(pool, 10, Math.random, dest, forced);
+      expect([...dest].filter((t) => t === FLOWER).length).toBeGreaterThanOrEqual(1);
+      expect([...dest].filter((t) => t === MAN7).length).toBeGreaterThanOrEqual(1);
+      expect([...dest].filter((t) => t === 0).length).toBeGreaterThanOrEqual(1);
+    }
+  });
 });
 
 describe("バリデーション", () => {
@@ -207,6 +232,7 @@ describe("バリデーション", () => {
       tons: 20,
       guard: 0,
       excluded: [],
+      forced: [],
     });
     expect(errors.some((e) => e.includes("1p"))).toBe(true);
   });
@@ -221,6 +247,7 @@ describe("バリデーション", () => {
       tons: 20,
       guard: 0,
       excluded: [],
+      forced: [],
     });
     expect(errors).toEqual([]);
   });
@@ -238,6 +265,7 @@ describe("バリデーション", () => {
         tons: 20,
         guard: 0,
         excluded: [],
+        forced: [],
       }),
     ).toEqual([]);
     expect(
@@ -250,6 +278,7 @@ describe("バリデーション", () => {
         tons: 20,
         guard: 0,
         excluded: [],
+        forced: [],
       }).some((e) => e.includes("グランドクロス")),
     ).toBe(true);
   });
@@ -264,11 +293,69 @@ describe("バリデーション", () => {
       tons: 20,
       guard: 0,
     };
-    expect(validateInput({ ...base, excluded: [0, 0, 0, 0] })).toEqual([]);
+    expect(validateInput({ ...base, excluded: [0, 0, 0, 0], forced: [] })).toEqual(
+      [],
+    );
     expect(
-      validateInput({ ...base, excluded: [0, 0, 0, 0, 0] }).some((e) =>
+      validateInput({ ...base, excluded: [0, 0, 0, 0, 0], forced: [] }).some(
+        (e) => e.includes("1p"),
+      ),
+    ).toBe(true);
+  });
+
+  it("手牌・除外・確定の合計は牌セットを超えない", () => {
+    const base = {
+      mode: "ultra" as const,
+      winType: "normal" as const,
+      concealed: parseHand("11112222333344p"),
+      kongs: [] as number[],
+      flowers: 0,
+      tons: 20,
+      guard: 0,
+    };
+    expect(
+      validateInput({ ...base, excluded: [0], forced: [] }).some((e) =>
         e.includes("1p"),
       ),
+    ).toBe(true);
+    expect(
+      validateInput({ ...base, excluded: [], forced: [1] }).some((e) =>
+        e.includes("2p"),
+      ),
+    ).toBe(true);
+    expect(
+      validateInput({
+        ...base,
+        concealed: parseHand("11122233344455p"),
+        excluded: [8, 8],
+        forced: [8, 8, 8],
+      }).some((e) => e.includes("9p")),
+    ).toBe(true);
+    expect(
+      validateInput({
+        mode: "ultra",
+        winType: "normal",
+        concealed: parseHand("777888p777888s東東"),
+        kongs: [],
+        flowers: 0,
+        tons: 20,
+        guard: 0,
+        excluded: [0, 0],
+        forced: [0, 0],
+      }),
+    ).toEqual([]);
+    expect(
+      validateInput({
+        mode: "ultra",
+        winType: "normal",
+        concealed: parseHand("777888p777888s東東"),
+        kongs: [],
+        flowers: 0,
+        tons: 1,
+        guard: 0,
+        excluded: [],
+        forced: [0, 1, 2],
+      }).some((e) => e.includes("確定牌")),
     ).toBe(true);
   });
 });

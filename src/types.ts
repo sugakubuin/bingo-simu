@@ -11,6 +11,7 @@ export type SimInput = {
   tons: number;
   guard: number;
   excluded: number[];
+  forced: number[];
 };
 
 export type InitialState = {
@@ -39,8 +40,8 @@ export type SimStats = {
   r16Rate: number;
   meanTons: number;
   finishRate: number;
+  max: number;
   freq: number[];
-  cdf: { n: number; rate: number }[];
   nori: number[];
   initial: InitialState;
 };

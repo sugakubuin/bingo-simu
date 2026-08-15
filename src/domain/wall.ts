@@ -26,6 +26,7 @@ export function remainingPool(
   kongs: readonly number[],
   flowers: number,
   excluded: readonly number[] = [],
+  forced: readonly number[] = [],
 ): Uint8Array {
   const counts = fullSetCounts(mode);
   for (const t of concealed) {
@@ -52,6 +53,12 @@ export function remainingPool(
     }
     counts[t]--;
   }
+  for (const t of forced) {
+    if (counts[t] === 0) {
+      throw new Error("確定牌が山の構成を超えています");
+    }
+    counts[t]--;
+  }
 
   let size = 0;
   for (let k = 0; k < KIND_COUNT; k++) size += counts[k];
@@ -68,12 +75,28 @@ export function drawWall(
   n2: number,
   rng: () => number,
   dest: Uint8Array,
+  forced: ArrayLike<number> = [],
 ): void {
-  dest.set(pool);
-  const len = dest.length;
-  const m = Math.min(n2, len);
-  for (let i = 0; i < m; i++) {
-    const j = i + Math.floor(rng() * (len - i));
+  const g = forced.length;
+  const need = n2 - g;
+  if (need < 0) {
+    throw new Error("確定牌が山の長さを超えています");
+  }
+  if (need > pool.length) {
+    throw new Error("残り牌が足りず、指定トン数の山を作れません");
+  }
+
+  const work = new Uint8Array(pool);
+  for (let i = 0; i < need; i++) {
+    const j = i + Math.floor(rng() * (work.length - i));
+    const tmp = work[i];
+    work[i] = work[j];
+    work[j] = tmp;
+  }
+  dest.set(work.subarray(0, need), 0);
+  for (let i = 0; i < g; i++) dest[need + i] = forced[i];
+  for (let i = 0; i < n2; i++) {
+    const j = i + Math.floor(rng() * (n2 - i));
     const tmp = dest[i];
     dest[i] = dest[j];
     dest[j] = tmp;

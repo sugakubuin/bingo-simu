@@ -2,6 +2,7 @@ type Props = {
   flowers: number;
   tons: number;
   guard: number;
+  maxFlowers: number;
   onFlowers: (n: number) => void;
   onTons: (n: number) => void;
   onGuard: (n: number) => void;
@@ -11,6 +12,7 @@ export function ParamsForm({
   flowers,
   tons,
   guard,
+  maxFlowers,
   onFlowers,
   onTons,
   onGuard,
@@ -26,6 +28,7 @@ export function ParamsForm({
               type="button"
               className="seg-btn"
               aria-pressed={flowers === n}
+              disabled={n > maxFlowers}
               onClick={() => onFlowers(n)}
             >
               {n}
@@ -36,7 +39,7 @@ export function ParamsForm({
       <div className="field">
         <label htmlFor="tons">残りトン数</label>
         <div className="seg">
-          {[10, 20, 30].map((n) => (
+          {[5, 10, 15, 20, 25, 30].map((n) => (
             <button
               key={n}
               type="button"

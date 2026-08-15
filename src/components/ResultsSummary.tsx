@@ -53,6 +53,20 @@ export function ResultsSummary({ stats }: Props) {
           <span>完走率</span>
         </div>
       </div>
+      <div className="stat-strip tnum">
+        <div>
+          <b>{pct(stats.kakuhenRate)}</b>
+          <span>確変率</span>
+        </div>
+        <div>
+          <b>{pct(stats.r16Rate)}</b>
+          <span>16R率</span>
+        </div>
+        <div>
+          <b>{stats.max}</b>
+          <span>最大枚数</span>
+        </div>
+      </div>
     </>
   );
 }
