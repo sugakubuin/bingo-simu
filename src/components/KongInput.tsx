@@ -21,7 +21,7 @@ export function KongInput({ kongs, mode, onAdd, onRemoveAt, canAdd }: Props) {
       <label>槓子</label>
       <p className="help">
         槓子の牌種を最大 4 組選択。基本手牌は 14 − 3k 枚になります。
-        {mode === "ultra" ? " ウルトラは字牌行の X でグランドクロス（東南西北）を選べます。" : ""}
+        {mode === "ultra" ? " X マークの牌でグランドクロス（東南西北）を選べます。" : ""}
       </p>
       <div className="hand-strip kong-strip" aria-label="槓子">
         {kongs.length === 0 ? (

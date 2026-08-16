@@ -64,6 +64,16 @@ textarea {
   color: var(--color-muted);
 }
 
+.result-mark {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  color: var(--color-ink);
+}
+
 .nav-edge {
   display: flex;
   justify-content: space-between;
@@ -108,11 +118,46 @@ textarea {
 }
 
 @media (min-width: 60rem) {
+  html,
+  body,
+  #root {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  #root {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .nav-edge {
+    position: static;
+    flex: 0 0 auto;
+  }
+
   .page {
-    grid-template-columns: minmax(0, 26rem) minmax(0, 1fr);
-    align-items: start;
-    padding-bottom: var(--space-2xl);
-    gap: var(--space-2xl);
+    flex: 1 1 auto;
+    min-height: 0;
+    max-width: none;
+    width: 100%;
+    margin-inline: 0;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: stretch;
+    gap: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .rail,
+  .canvas {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: var(--space-lg) var(--page-gutter) var(--space-2xl);
+  }
+
+  .rail {
+    border-right: var(--rule);
   }
 }
 
@@ -248,6 +293,7 @@ textarea {
   flex-direction: column;
   gap: var(--space-2xs);
   min-width: 0;
+  container-type: inline-size;
 }
 
 .field label {
@@ -313,6 +359,7 @@ textarea {
 .tile-row {
   display: flex;
   justify-content: center;
+  align-items: start;
   gap: var(--tile-gap);
   min-width: 0;
 }
@@ -320,6 +367,8 @@ textarea {
 .tile-row .tile-btn {
   flex: 0 0 calc((100% - 13 * var(--tile-gap)) / 14);
   width: calc((100% - 13 * var(--tile-gap)) / 14);
+  height: auto;
+  align-self: start;
 }
 
 .tile-btn {
@@ -357,8 +406,9 @@ textarea {
   position: relative;
   display: grid;
   grid-template-columns: repeat(14, minmax(0, 1fr));
+  align-content: start;
+  align-items: start;
   gap: var(--tile-gap);
-  container-type: inline-size;
   min-height: calc(
     (100cqi - 13 * var(--tile-gap)) / 14 * 4 / 3 + 2 * var(--space-2xs) + 4px
   );
@@ -432,18 +482,6 @@ textarea {
   cursor: progress;
 }
 
-.run-rail {
-  display: none;
-  width: 100%;
-  justify-content: center;
-}
-
-@media (min-width: 60rem) {
-  .run-rail {
-    display: inline-flex;
-  }
-}
-
 .field-head {
   display: flex;
   justify-content: space-between;
@@ -502,7 +540,14 @@ textarea {
 
 @media (min-width: 60rem) {
   .cta-sticky {
-    display: none;
+    position: static;
+    flex: 0 0 auto;
+  }
+
+  .cta-sticky .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 }
 
@@ -689,17 +734,12 @@ textarea {
   margin: 0 0 var(--space-xs);
 }
 
-.foot-line {
-  border-top: var(--rule);
-  padding: var(--space-md) var(--page-gutter) var(--space-lg);
+.foot-note {
+  margin: 0;
   font-family: var(--font-mono);
   font-size: 0.6875rem;
   letter-spacing: 0.04em;
   color: var(--color-muted);
-}
-
-.foot-line p {
-  margin: 0;
 }
 
 .progress-track {

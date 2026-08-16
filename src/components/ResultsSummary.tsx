@@ -17,6 +17,7 @@ export function ResultsSummary({ stats }: Props) {
   const ev = useCountUp(stats.mean);
   return (
     <>
+      <p className="result-mark">RESULT</p>
       <div className="readout">
         <div className="readout-top">
           <span className="mono-label"> {stats.trials.toLocaleString("ja-JP")} 回試行の期待枚数</span>

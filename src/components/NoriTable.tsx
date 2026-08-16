@@ -18,11 +18,11 @@ export function NoriTable({ nori, mode }: Props) {
   return (
     <div>
       <div className="block-head">
-        <p className="mono-label">のり</p>
+        <p className="mono-label">のり枚数</p>
         <h2>のり枚数テーブル</h2>
       </div>
       <p className="help">
-        その牌がめくれたときにのる枚数。手牌は毎回再利用されます。
+        その牌がめくれたときにのる枚数。
       </p>
       <div className="nori-grid">
         {kinds.map((k) => (

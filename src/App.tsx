@@ -273,15 +273,6 @@ export function App() {
               {e}
             </p>
           ))}
-          <button
-            type="button"
-            className="btn btn-primary run-rail"
-            onClick={run}
-            disabled={runDisabled}
-            data-state={sim.running ? "loading" : undefined}
-          >
-            {sim.running ? "計算中" : "10 万回シミュレート"}
-          </button>
         </section>
 
         <section className="canvas" aria-label="結果">
@@ -316,6 +307,7 @@ export function App() {
             </div>
           ) : null}
           <NoriTable nori={liveNori.nori} mode={mode} />
+          <p className="foot-note">牌画 FluffyStuff CC BY 4.0 · 永続化なし</p>
         </section>
       </main>
 
@@ -333,10 +325,6 @@ export function App() {
           {sim.running ? "計算中" : "シミュレート"}
         </button>
       </aside>
-
-      <footer className="foot-line">
-        <p>準拠 二向聴チューリップ公式ルール 2026/8/2 · 牌画 FluffyStuff CC BY 4.0 · 永続化なし</p>
-      </footer>
     </>
   );
 }
