@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { parseHand, formatHand } from "./domain/parse";
 import { validateInput } from "./domain/validate";
 import { buildNoriTable, handCounts } from "./domain/nori";
@@ -61,6 +61,13 @@ export function App() {
   const [excluded, setExcluded] = useState<number[]>([]);
   const [forced, setForced] = useState<number[]>([]);
   const sim = useSimulation();
+
+  useEffect(() => {
+    document.documentElement.dataset.mode = mode;
+    return () => {
+      delete document.documentElement.dataset.mode;
+    };
+  }, [mode]);
 
   const input: SimInput = {
     mode,
@@ -211,7 +218,13 @@ export function App() {
       <main className="page">
         <section className="rail" aria-label="入力">
           <ModeToggle value={mode} onChange={onModeChange} />
-          <WinTypeSelect value={winType} onChange={setWinType} />
+          <WinTypeSelect
+            value={winType}
+            onChange={(next) => {
+              setWinType(next);
+              if (next === "riichiYakuman" && guard < 1) setGuard(1);
+            }}
+          />
           <p className="help">
             初期状態（自動判定）{" "}
             <span className="badge">{liveNori.initial.label}</span>
@@ -238,6 +251,7 @@ export function App() {
             tons={tons}
             guard={guard}
             maxFlowers={maxFlowers}
+            minGuard={winType === "riichiYakuman" ? 1 : 0}
             onFlowers={(n) => setFlowers(Math.min(n, maxFlowers))}
             onTons={(n) => setTons(Math.min(30, Math.max(1, n || 1)))}
             onGuard={setGuard}

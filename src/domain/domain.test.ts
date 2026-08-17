@@ -253,6 +253,34 @@ describe("バリデーション", () => {
     expect(errors).toEqual([]);
   });
 
+  it("リーチ役満は転落保証 0 を拒否する", () => {
+    const errors = validateInput({
+      mode: "ultra",
+      winType: "riichiYakuman",
+      concealed: parseHand("777888p777888s東東"),
+      kongs: [],
+      flowers: 0,
+      tons: 20,
+      guard: 0,
+      excluded: [],
+      forced: [],
+    });
+    expect(errors.some((e) => e.includes("転落保証"))).toBe(true);
+    expect(
+      validateInput({
+        mode: "ultra",
+        winType: "riichiYakuman",
+        concealed: parseHand("777888p777888s東東"),
+        kongs: [],
+        flowers: 0,
+        tons: 20,
+        guard: 1,
+        excluded: [],
+        forced: [],
+      }),
+    ).toEqual([]);
+  });
+
   it("グランドクロスはウルトラのみ、面前 11 枚", () => {
     const concealed = parseHand("777888p777s東東");
     expect(concealed.length).toBe(11);

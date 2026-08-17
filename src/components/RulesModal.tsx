@@ -150,6 +150,37 @@ export function RulesModal({ open, onClose }: Props) {
           </section>
 
           <section>
+            <h3>和了種別と初期状態</h3>
+            <p>
+              リーチ役満、および天和・地和・人和は、777がなくても確変から始まります。同色の7が3枚以上あれば16Rになります。777の777や突確による昇格はそのままあります。
+            </p>
+            <table>
+              <thead>
+                <tr>
+                  <th>種別</th>
+                  <th>なし</th>
+                  <th>777のみ</th>
+                  <th>777の777</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>通常手・リーチなし役満</td>
+                  <td>通常</td>
+                  <td>確変</td>
+                  <td>16R</td>
+                </tr>
+                <tr>
+                  <td>リーチ役満・天地人和</td>
+                  <td>確変</td>
+                  <td>16R</td>
+                  <td>16R</td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
+
+          <section>
             <h3>スーパービンゴ（112枚）</h3>
             <p>
               萬子は入りません。7pと7sのみ8枚ずつ、その他の筒索は各4枚、字牌各4枚、花牌4枚です。
@@ -189,37 +220,6 @@ export function RulesModal({ open, onClose }: Props) {
                 ・スーパービンゴと同様、7mを読み替えた後の手牌の中で、7p、7sを5枚以上使って和了ることはできません（麻雀の常識）。
               </li>
             </ul>
-          </section>
-
-          <section>
-            <h3>和了種別と初期状態</h3>
-            <p>
-              リーチ役満、および天和・地和・人和は、777がなくても確変から始まります。同色の7が3枚以上あれば16Rになります。777の777や突確による昇格はそのままあります。
-            </p>
-            <table>
-              <thead>
-                <tr>
-                  <th>種別</th>
-                  <th>なし</th>
-                  <th>777のみ</th>
-                  <th>777の777</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>通常手 / リーチなし役満</td>
-                  <td>通常</td>
-                  <td>確変</td>
-                  <td>16R</td>
-                </tr>
-                <tr>
-                  <td>リーチ役満・天地人和</td>
-                  <td>確変</td>
-                  <td>16R</td>
-                  <td>16R</td>
-                </tr>
-              </tbody>
-            </table>
           </section>
 
           <section>

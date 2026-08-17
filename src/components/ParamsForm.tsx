@@ -3,6 +3,7 @@ type Props = {
   tons: number;
   guard: number;
   maxFlowers: number;
+  minGuard?: number;
   onFlowers: (n: number) => void;
   onTons: (n: number) => void;
   onGuard: (n: number) => void;
@@ -13,6 +14,7 @@ export function ParamsForm({
   tons,
   guard,
   maxFlowers,
+  minGuard = 0,
   onFlowers,
   onTons,
   onGuard,
@@ -69,6 +71,7 @@ export function ParamsForm({
               type="button"
               className="seg-btn"
               aria-pressed={guard === n}
+              disabled={n < minGuard}
               onClick={() => onGuard(n)}
             >
               {n}

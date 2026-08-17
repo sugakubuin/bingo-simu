@@ -68,3 +68,9 @@
   --z-sticky: 30;
   --z-focus: 40;
 }
+
+:root[data-mode="ultra"] {
+  --color-accent: oklch(68% 0.18 312);
+  --color-accent-ink: oklch(16% 0.03 312);
+  --color-focus: oklch(72% 0.16 312);
+}

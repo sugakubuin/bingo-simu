@@ -49,6 +49,9 @@ export function validateInput(input: SimInput): string[] {
   if (input.guard < 0 || input.guard > 3) {
     errors.push("転落保証は 0–3 です");
   }
+  if (input.winType === "riichiYakuman" && input.guard < 1) {
+    errors.push("リーチ役満は転落保証が 1 回以上です");
+  }
 
   const wall = fullSetCounts(input.mode);
   for (let i = 0; i < KIND_COUNT; i++) {
