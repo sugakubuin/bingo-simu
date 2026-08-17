@@ -167,6 +167,7 @@ describe("シミュレーション集計", () => {
     expect(stats.finishRate).toBeLessThanOrEqual(1);
     expect(Number.isInteger(stats.modeValue)).toBe(true);
     expect(Number.isInteger(stats.max)).toBe(true);
+    expect(stats.max).toBe(108);
     expect(stats.max).toBeGreaterThanOrEqual(stats.modeValue);
   });
 

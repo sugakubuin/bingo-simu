@@ -4,6 +4,7 @@ import { drawWall, remainingPool } from "../domain/wall";
 import { mulberry32 } from "../domain/rng";
 import { runTrial } from "./engine";
 import { freqFromTotals, modeFromTotals } from "./histogram";
+import { theoreticalMaxNori } from "../domain/theoreticalMax";
 import type { SimInput, SimStats } from "../types";
 
 export const TRIALS = 100_000;
@@ -29,6 +30,15 @@ export function runSimulation(
   );
   const n2 = 2 * input.tons;
   const buf = new Uint8Array(n2);
+  const theoreticalMax = theoreticalMaxNori(
+    nori,
+    pool,
+    input.forced ?? [],
+    input.tons,
+    initial.kakuhen,
+    initial.is16R,
+    input.mode,
+  );
 
   const totals = new Uint16Array(trials);
   let sum = 0;
@@ -39,7 +49,6 @@ export function runSimulation(
   let r16N = 0;
   let tonSum = 0;
   let finishN = 0;
-  let maxTotal = 0;
 
   for (let t = 0; t < trials; t++) {
     drawWall(pool, n2, rng, buf, input.forced ?? []);
@@ -61,7 +70,6 @@ export function runSimulation(
     if (r.is16R) r16N++;
     tonSum += r.tonUsed;
     if (r.tonUsed === input.tons) finishN++;
-    if (r.total > maxTotal) maxTotal = r.total;
     if (options.onProgress && (t + 1) % 5000 === 0) {
       options.onProgress(t + 1, trials);
     }
@@ -89,7 +97,7 @@ export function runSimulation(
     r16Rate: r16N / trials,
     meanTons: tonSum / trials,
     finishRate: finishN / trials,
-    max: maxTotal,
+    max: theoreticalMax,
     freq: freqFromTotals(totals),
     nori: Array.from(nori),
     initial,

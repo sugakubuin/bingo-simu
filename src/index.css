@@ -605,7 +605,7 @@ textarea {
 
 .stat-strip {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--space-md);
   padding: var(--space-md) 0;
   border-top: var(--rule);
@@ -632,6 +632,49 @@ textarea {
 
 .stat-strip + .stat-strip {
   border-top: none;
+}
+
+.sigma-band {
+  padding: var(--space-md) 0 var(--space-lg);
+}
+
+.sigma-sigma {
+  margin: 0 0 var(--space-xs);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+}
+
+.sigma-table {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--space-2xs);
+  text-align: center;
+}
+
+.sigma-table span {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  color: var(--color-muted);
+}
+
+.sigma-table b {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-ink);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.sigma-table .is-ev span,
+.sigma-table .is-ev b {
+  color: var(--color-accent);
 }
 
 .results-charts {

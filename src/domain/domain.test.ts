@@ -5,6 +5,7 @@ import { buildNoriTable, handCounts } from "./nori";
 import { initialState } from "./initialState";
 import { fullSetCounts, fullSetSize, remainingPool, drawWall } from "./wall";
 import { validateInput } from "./validate";
+import { theoreticalMaxFromInput } from "./theoreticalMax";
 
 describe("循環", () => {
   it("筒子は 9p → 1p", () => {
@@ -357,6 +358,85 @@ describe("バリデーション", () => {
         forced: [0, 1, 2],
       }).some((e) => e.includes("確定牌")),
     ).toBe(true);
+  });
+});
+
+describe("理論最大", () => {
+  it("16R 開始は最良 2n 枚の 2 倍", () => {
+    expect(
+      theoreticalMaxFromInput({
+        mode: "ultra",
+        winType: "normal",
+        concealed: parseHand("777888p777888s東東"),
+        kongs: [],
+        flowers: 0,
+        tons: 1,
+        guard: 0,
+        excluded: [],
+        forced: [],
+      }),
+    ).toBe(24);
+    expect(
+      theoreticalMaxFromInput({
+        mode: "ultra",
+        winType: "normal",
+        concealed: parseHand("777888p777888s東東"),
+        kongs: [],
+        flowers: 0,
+        tons: 5,
+        guard: 0,
+        excluded: [],
+        forced: [],
+      }),
+    ).toBe(108);
+  });
+
+  it("通常開始は突確して確変・16R に入る", () => {
+    expect(
+      theoreticalMaxFromInput({
+        mode: "ultra",
+        winType: "normal",
+        concealed: parseHand("111222333p11122s"),
+        kongs: [],
+        flowers: 0,
+        tons: 2,
+        guard: 0,
+        excluded: [],
+        forced: [],
+      }),
+    ).toBe(42);
+  });
+
+  it("確変のみで突確できないときは倍にしない", () => {
+    expect(
+      theoreticalMaxFromInput({
+        mode: "ultra",
+        winType: "normal",
+        concealed: parseHand("777p11s東東南西北白白發中"),
+        kongs: [],
+        flowers: 0,
+        tons: 1,
+        guard: 0,
+        excluded: [],
+        forced: [],
+      }),
+    ).toBe(8);
+  });
+
+  it("スーパーの花牌は突確に使わない", () => {
+    expect(
+      theoreticalMaxFromInput({
+        mode: "super",
+        winType: "normal",
+        concealed: parseHand("777p11s東東南西北白白發中"),
+        kongs: [],
+        flowers: 2,
+        tons: 1,
+        guard: 0,
+        excluded: [],
+        forced: [],
+      }),
+    ).toBe(12);
   });
 });
 
