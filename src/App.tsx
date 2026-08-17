@@ -21,7 +21,7 @@ const ResultsCharts = lazy(async () => {
   return { default: m.ResultsCharts };
 });
 
-const SAMPLE = parseHand("777888p777888s11z");
+const SAMPLE = parseHand("123567p567777s11z");
 
 function kindCount(concealed: number[], kongs: number[], kind: number): number {
   let n = 0;

@@ -165,6 +165,8 @@ describe("シミュレーション集計", () => {
     expect(stats.freq.reduce((a, b) => a + b, 0)).toBe(500);
     expect(stats.finishRate).toBeGreaterThanOrEqual(0);
     expect(stats.finishRate).toBeLessThanOrEqual(1);
+    expect(stats.continueRate).toBeGreaterThan(0);
+    expect(stats.continueRate).toBeLessThanOrEqual(1);
     expect(Number.isInteger(stats.modeValue)).toBe(true);
     expect(Number.isInteger(stats.max)).toBe(true);
     expect(stats.max).toBe(108);
@@ -188,6 +190,25 @@ describe("シミュレーション集計", () => {
     );
     expect(stats.initial.label).toBe("16R");
     expect(stats.r16Rate).toBe(1);
+  });
+
+  it("のらない手の継続率は 0", () => {
+    const stats = runSimulation(
+      {
+        mode: "ultra",
+        winType: "normal",
+        concealed: [],
+        kongs: [],
+        flowers: 0,
+        tons: 5,
+        guard: 0,
+        excluded: [],
+        forced: [],
+      },
+      { trials: 200, seed: 3 },
+    );
+    expect(stats.continueRate).toBe(0);
+    expect(stats.finishRate).toBe(0);
   });
 });
 

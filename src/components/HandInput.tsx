@@ -44,7 +44,7 @@ export function HandInput({
       <p className="help">
         牌をタップして追加。手牌の牌をタップすると外す。槓子は下で入力。
       </p>
-      <div className="hand-strip" aria-label="面前手牌">
+      <div className="hand-strip" aria-label="基本手牌">
         {concealed.length === 0 ? (
           <span className="help">まだ牌がありません</span>
         ) : (
@@ -103,7 +103,7 @@ export function HandInput({
         onChange={(e) => onTextChange(e.target.value)}
         aria-invalid={textError ? true : undefined}
         spellCheck={false}
-        placeholder="777888p777888s11z"
+        placeholder="123567p567777s11z"
       />
       {textError ? <p className="err">{textError}</p> : null}
     </div>

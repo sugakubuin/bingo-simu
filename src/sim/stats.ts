@@ -96,6 +96,7 @@ export function runSimulation(
     totsukakuRate: totsuN / trials,
     r16Rate: r16N / trials,
     meanTons: tonSum / trials,
+    continueRate: tonSum === 0 ? 0 : (tonSum - (trials - finishN)) / tonSum,
     finishRate: finishN / trials,
     max: theoreticalMax,
     freq: freqFromTotals(totals),

@@ -39,6 +39,7 @@ export type SimStats = {
   totsukakuRate: number;
   r16Rate: number;
   meanTons: number;
+  continueRate: number;
   finishRate: number;
   max: number;
   freq: number[];

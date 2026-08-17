@@ -45,13 +45,13 @@ export function ResultsSummary({ stats }: Props) {
         </div>
         <div>
           <b>{num(stats.meanTons)}</b>
-          <span>平均トン</span>
+          <span>平均トン数</span>
         </div>
       </div>
       <div className="stat-strip tnum">
         <div>
-          <b>{pct(stats.zeroRate)}</b>
-          <span>0枚率</span>
+          <b>{pct(stats.continueRate)}</b>
+          <span>継続率</span>
         </div>
         <div>
           <b>{pct(stats.finishRate)}</b>
@@ -67,7 +67,7 @@ export function ResultsSummary({ stats }: Props) {
         </div>
       </div>
       <div className="sigma-band">
-        <p className="sigma-sigma tnum">σ {num(stats.stddev)}</p>
+        <p className="sigma-sigma tnum">標準偏差 σ = {num(stats.stddev)}</p>
         <div className="sigma-table tnum">
           {SIGMA_KS.map((k) => {
             const label = k === 0 ? "EV" : k > 0 ? `+${k}σ` : `${k}σ`;
