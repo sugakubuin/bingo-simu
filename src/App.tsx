@@ -210,7 +210,7 @@ export function App() {
     <>
       <header className="nav-edge">
         <a className="wordmark" href="/">
-          ビンゴ捲りシミュレータ
+          ビンゴめくりシミュレータ
         </a>
         <p className="nav-meta">10万回試行で期待値と分布を計算</p>
       </header>
