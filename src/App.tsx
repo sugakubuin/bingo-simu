@@ -268,7 +268,9 @@ export function App() {
             onReset={() => setForced([])}
             remainingOf={(k) => (forced.length >= 2 * tons ? 0 : remainingOf(k))}
           />
-          {errors.map((e) => (
+          {errors
+            .filter((e) => !e.includes("が必要です（いま"))
+            .map((e) => (
             <p key={e} className="err">
               {e}
             </p>
@@ -302,7 +304,7 @@ export function App() {
               <p className="mono-label">Result</p>
               <h2>まだ結果はありません</h2>
               <p className="help">
-                {expected} 枚 / 槓 {kongs.length} を入れて実行すると、期待値と分布が出ます。
+                手牌を入れて実行すると、期待値や分布が出ます。
               </p>
             </div>
           ) : null}
@@ -313,7 +315,9 @@ export function App() {
 
       <aside className="cta-sticky">
         <span className="help">
-          {sim.running ? "計算中" : errors[0] ?? `${expected} 枚 / 槓 ${kongs.length}`}
+          {sim.running
+            ? "計算中"
+            : `入力済み基本手牌 ${concealed.length}枚/${expected}枚 (槓${kongs.length})`}
         </span>
         <button
           type="button"

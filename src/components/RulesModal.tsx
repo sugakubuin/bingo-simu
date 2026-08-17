@@ -1,9 +1,55 @@
 import { useEffect, useRef } from "react";
+import { MAN7 } from "../domain/tiles";
+import { Tile } from "../ui/Tile";
 
 type Props = {
   open: boolean;
   onClose: () => void;
 };
+
+function parseUltraExample(text: string): number[] {
+  const tiles: number[] = [];
+  const digits: number[] = [];
+  const flush = (suit: string) => {
+    for (const d of digits) {
+      if (suit === "p") tiles.push(d - 1);
+      else if (suit === "s") tiles.push(8 + d);
+      else if (suit === "m" && d === 7) tiles.push(MAN7);
+      else if (suit === "z") tiles.push(17 + d);
+    }
+    digits.length = 0;
+  };
+  for (const ch of text) {
+    if (ch >= "0" && ch <= "9") {
+      digits.push(Number(ch));
+      continue;
+    }
+    const lower = ch.toLowerCase();
+    if (lower === "p" || lower === "s" || lower === "m" || lower === "z") {
+      flush(lower);
+    }
+  }
+  return tiles;
+}
+
+const ULTRA_EXAMPLES = [
+  { label: "手牌1", tiles: parseUltraExample("1235677p7m65s111z") },
+  { label: "手牌2", tiles: parseUltraExample("1234566p7m77s111z") },
+  { label: "手牌3", tiles: parseUltraExample("1234567p7m77s111z") },
+];
+
+function ExampleHand({ label, tiles }: { label: string; tiles: number[] }) {
+  return (
+    <div className="rules-example">
+      <p className="rules-example-label">{label}</p>
+      <div className="rules-hand" aria-label={label}>
+        {tiles.map((kind, i) => (
+          <Tile key={`${kind}-${i}`} kind={kind} />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function RulesModal({ open, onClose }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -123,6 +169,12 @@ export function RulesModal({ open, onClose }: Props) {
             <p>
               1m・9mの代わりに7mを4枚入れた確変チューリップです。筒索字は各4枚、花牌4枚です。手牌の7mは7pとしても7sとしても使えます。
             </p>
+            <p>
+              例えば、以下の手牌1は47p47s待ち（7p47sで確変）、手牌2は3658p待ち（36pで確変）、手牌3は147p7s待ち（すべて確変）です。
+            </p>
+            {ULTRA_EXAMPLES.map((ex) => (
+              <ExampleHand key={ex.label} label={ex.label} tiles={ex.tiles} />
+            ))}
             <ul>
               <li>
                 ・山から7mがめくれたときは、7p見立てと7s見立てのうち、のり枚数が大きい方を取ります。

@@ -874,6 +874,40 @@ textarea {
   padding-left: 1.2em;
 }
 
+.rules-example {
+  margin-top: var(--space-sm);
+}
+
+.rules-example-label {
+  margin: 0 0 var(--space-2xs);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.rules-hand {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 2px;
+  min-width: 0;
+  color-scheme: light;
+}
+
+.rules-hand .tile-svg {
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
+  max-width: 1.7rem;
+  height: auto;
+  aspect-ratio: 3 / 4;
+  border: 1px solid var(--color-tile-frame);
+  border-radius: 3px;
+  background: var(--color-tile-tray);
+  box-sizing: border-box;
+}
+
 .rules-dialog-body table {
   width: 100%;
   border-collapse: collapse;
